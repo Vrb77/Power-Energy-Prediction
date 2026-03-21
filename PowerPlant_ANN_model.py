@@ -1,43 +1,38 @@
 import streamlit as st
 import joblib
 import pandas as pd
-from tensorflow.keras.models import load_model
-# set the tab title
+import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
 st.set_page_config("Power Energy Prediction")
-
-# Set the page title
 st.title("Power Energy Prediction Project")
-
-# Set header
 st.subheader("By Vaishnavi Badade")
 
-# Load the pipeline (data cleaning, preprocessing) and model
+# Load preprocessor
 pre = joblib.load("PowerPlant_model_pre.joblib")
-model = load_model("PowerPlant_model.keras")
 
+# Rebuild the exact same model architecture
+model = Sequential([
+    Dense(64, activation='relu', input_shape=(4,)),
+    Dense(32, activation='relu'),
+    Dense(16, activation='relu'),
+    Dense(1, activation='linear')
+])
 
+# Load weights (version-independent)
+model.load_weights("PowerPlant_model_weights.weights.h5")
 
 AT = st.number_input("Ambient Temperature")
-V =st.number_input("Exhaust Vacuum")
+V  = st.number_input("Exhaust Vacuum")
 AP = st.number_input("Ambient Pressure")
-RH	= st.number_input("Relative Humidity")
+RH = st.number_input("Relative Humidity")
 
-
-# Include a button. After providing all the inputs, user will click on the button. The button should provide the necessary predictions
-submit = st.button("Power Energy Prediction")
+submit = st.button("Predict Power Output")
 
 if submit:
-    data = {
-        'AT':[AT],
-        'V':[V],
-        'AP':[AP],
-        'RH':[RH]
-    }
-    # Convert above dictionary into dataframe first
+    data = {'AT': [AT], 'V': [V], 'AP': [AP], 'RH': [RH]}
     xnew = pd.DataFrame(data)
-    # Apply data cleaning and preprocessing on new data using pre pipeline
     xnew_pre = pre.transform(xnew)
-    # predictions
     preds = model.predict(xnew_pre)
-   
-    st.subheader(preds)
+    st.success(f"⚡ Predicted Power Output: {preds[0][0]:.2f} MW")
