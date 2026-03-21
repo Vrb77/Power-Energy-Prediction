@@ -3,7 +3,7 @@ joblib
 numpy==1.26.4
 pandas
 matplotlib
-scikit-learn==1.8.0
+scikit-learn
 tensorflow==2.16.1
 keras==3.8.0
 
